@@ -6,6 +6,8 @@
 class QAction;
 class QLabel;
 class FindDialog;
+class GoToCellDialog;
+class SortDialog;
 //class Spreadsheet;
 
 namespace Ui {
@@ -21,7 +23,7 @@ public:
     ~MainWindow();
 
 protected:
-    //void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void newFile();
@@ -40,6 +42,7 @@ private slots:
     void selectColumn();
     void selectAll();
     void setShowGrid(bool x);
+    void about();
 //    void updateStatusBar();
 private:
 //    void spreadsheetModified();
@@ -50,12 +53,14 @@ private:
     void createStatusBar();
     void readSettings();
     void writeSettings();
-//    bool okToContinue();
-//    bool loadFile(const QString& fileName);
-//    bool saveFile(const QString& fileName);
-//    void setCurrentFile(const QString& fileName);
-//    void updateRecentFileActions();
-//    QString strippedName(const QString& fullFileName);
+    bool okToContinue();
+    bool loadFile(const QString& fileName);
+    bool saveFile(const QString& fileName);
+    void setCurrentFile(const QString& fileName);
+    void updateRecentFileActions();
+    QString strippedName(const QString& fullFileName);
+
+    FindDialog *findDialog;
 
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActions[MaxRecentFiles];
