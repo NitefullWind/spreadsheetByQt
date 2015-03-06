@@ -1,0 +1,7 @@
+Debug/
+GeneratedFiles/
+x64/
+*.pro.user.3.2-pre1
+*.vcxproj.filters
+*.vcxproj.user
+*.vcxproj

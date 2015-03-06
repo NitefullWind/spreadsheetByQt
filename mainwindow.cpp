@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose);     //设置窗口关闭时删除对象，防止内存泄露
 /*
     spreadsheet = new Spreadsheet;
     setCentralWidget(spreadsheet);
@@ -63,11 +64,16 @@ void MainWindow::createActions()
         connect(recentFileActions[i],SIGNAL(triggered()),this,SLOT(openRecentFile()));
     }
 
+    closeAction = new QAction(tr("&Close"),this);
+    closeAction->setShortcut(QKeySequence::Close);
+    closeAction->setStatusTip(tr("Close this window"));
+    connect(closeAction,SIGNAL(triggered()),this,SLOT(close()));
+
     //退出程序。明确指定键序列（快捷键）
     exitAction = new QAction(tr("E&xit"),this);
     exitAction->setShortcut(tr("Ctrl+Q"));
     exitAction->setStatusTip(tr("Exit the application"));
-    connect(exitAction,SIGNAL(triggered()),this,SLOT(close()));
+    connect(exitAction,SIGNAL(triggered()),qApp,SLOT(closeAllWindows()));
 
     //edit
     copyAction = new QAction(tr("Copy"),this);
@@ -140,6 +146,7 @@ void MainWindow::createMenus()
         fileMenu->addAction(recentFileActions[i]);
     fileMenu->addSeparator();
 
+    fileMenu->addAction(closeAction);
     fileMenu->addAction(exitAction);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -225,9 +232,8 @@ void MainWindow::spreadsheetModified()
 
 void MainWindow::newFile()
 {
-    if(okToContinue()){
-        //清空现表格
-    }
+    MainWindow *mainWin = new MainWindow;
+    mainWin->show();
 }
 bool MainWindow::okToContinue()
 {
@@ -345,7 +351,10 @@ void MainWindow::setCurrentFile(const QString &fileName)
         shownName = strippedName(curFile);
         recentFiles.removeAll(curFile);     //将已有的curFile从链表中移除
         recentFiles.prepend(curFile);       //重新放入链表
-        updateRecentFileActions();          //更新“最近打开的文档”
+        foreach (QWidget *win, QApplication::topLevelWidgets()){
+            if(MainWindow *mainWin = qobject_cast<MainWindow *>(win))
+                mainWin->updateRecentFileActions();          //更新“最近打开的文档”
+        }
     }
     setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("Spreadsheet")));
 }
@@ -393,11 +402,16 @@ void MainWindow::readSettings()
     QSettings settings("Software Inc.","Spreadsheet");
 
     recentFiles = settings.value("recentFiles").toStringList();
-    updateRecentFileActions();
+    foreach (QWidget *win, QApplication::topLevelWidgets()){        //每个窗口都调用updateRecentFileActions函数
+        if(MainWindow *mainWin = qobject_cast<MainWindow *>(win))
+            mainWin->updateRecentFileActions();          //更新“最近打开的文档”
+    }
 
     bool showGrid = settings.value("showGrid",true).toBool();       //没设置的情况下指定默认值为true
     showGridAction->setChecked(showGrid);
 }
+
+QStringList MainWindow::recentFiles = QStringList();
 
 void MainWindow::selectAll(){}
 void MainWindow::selectRow(){}

@@ -69,7 +69,7 @@ private:
 //    Spreadsheet *spreadsheet;
     QLabel *locationLabel;
     QLabel *formulaLabel;
-    QStringList recentFiles;
+    static QStringList recentFiles;     //设为静态变量可同步每个窗口的最近打开文档
     QString curFile;
 
 
@@ -80,6 +80,7 @@ private:
     QAction *selectRowAction, *selectColumnAction, *selectAllAction;
     QAction *findAction, *goToCellAction, *sortAction;
     QAction *aboutAction;
+    QAction *closeAction;
     QAction *exitAction;
     QAction *showGridAction;
 
